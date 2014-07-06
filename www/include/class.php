@@ -212,6 +212,9 @@ HTML;
 	}
 	
 	private function search($term, $category=false, $regex=false, $rss=false, $sort='sd', $pno=0) {
+		$sortArray =	array("s" => "seeders", "l" => "leechers", "c" => "category", "f"=>"total_size");
+		$ascDescArray	array("a" => "ASC", "d" => "DESC");
+
 		if ($rss && RSS_ENABLED) {
 			// If we're loading an RSS feed, we also want the description
 			$sql = "SELECT SQL_CALC_FOUND_ROWS id,uri,title,description,category,seeders,leechers,total_size FROM magnets WHERE ";
@@ -235,41 +238,10 @@ HTML;
 			$sql .= "AND category IN (:category) ";
 		}
 		$sql .= "AND active=1 "; // We don't want any magnets that are inactive
-		switch ($sort) {
-			case 'sd':
-				$sql .= "ORDER BY seeders DESC ";
-				break;
-			case 'ld':
-				$sql .= "ORDER BY leechers DESC ";
-				break;
-			case 'td':
-				$sql .= "ORDER BY title DESC ";
-				break;
-			case 'cd':
-				$sql .= "ORDER BY category DESC ";
-				break;
-			case 'fd':
-				$sql .= "ORDER BY total_size DESC";
-				break;
-			case 'sa':
-				$sql .= "ORDER BY seeders ASC ";
-				break;
-			case 'la':
-				$sql .= "ORDER BY leechers ASC ";
-				break;
-			case 'ta':
-				$sql .= "ORDER BY title ASC ";
-				break;
-			case 'ca':
-				$sql .= "ORDER BY category ASC ";
-				break;
-			case 'fa':
-				$sql .= "ORDER BY total_size ASC";
-				break;
-			default:
-				$sql .= "ORDER BY seeders DESC ";
-				break;
-		}
+		
+		$sql .= "ORDER BY ";
+		$sql .= $sortArray[substr($sort, 0, 1)] . " " . $ascDescArray[substr($sort, 1, 2)] . " "; 
+
 		$pno = $pno*RESULTS_PER_PAGE;
 		if ($rss && RSS_ENABLED) { // RSS feeds only get a maximum of 50 results
 			$sql .= "LIMIT 0,50";
@@ -401,7 +373,6 @@ SQL;
 			return $gb . " GB";
 		}
 	}
-
 }
 
 class magnet {
